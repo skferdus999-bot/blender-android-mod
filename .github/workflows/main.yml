@@ -7,6 +7,7 @@ on:
 jobs:
   prepare:
     runs-on: ubuntu-latest
+
     steps:
       - name: Install Git LFS
         run: |
@@ -19,12 +20,17 @@ jobs:
           git clone --branch main https://projects.blender.org/blender/blender.git blender
           cd blender
           git lfs pull
-          git submodule update --init lib/linux_x64 lib/android_arm64
+          echo "Listing configured submodules:"
+          cat .gitmodules
+          echo "Initializing available submodules:"
+          git submodule update --init --recursive
 
-      - name: Check Android dependencies
+      - name: Check Android libraries
         run: |
           cd blender
-          echo "Checking Android libraries..."
-          ls -lah lib/android_arm64
-          echo "Checking host libraries..."
-          ls -lah lib/linux_x64
+          if [ -d lib/android_arm64 ]; then
+            ls -lah lib/android_arm64
+          else
+            echo "Android library folder is missing."
+            exit 1
+          fi
