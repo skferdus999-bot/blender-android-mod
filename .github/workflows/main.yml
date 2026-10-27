@@ -18,7 +18,8 @@ jobs:
         run: |
           git clone --depth 1 --branch android https://github.com/simfeo/blender.git blender
           cd blender
-          git lfs pull
+          git lfs install
+          git -c lfs.fetchexclude="assets/brushes/essentials_brushes-curve_sculpt.blend" lfs pull || true
           git submodule update --init --recursive
 
       - name: Check Android files
