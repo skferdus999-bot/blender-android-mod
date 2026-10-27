@@ -25,13 +25,14 @@ jobs:
           git clone --depth 1 --branch android \
             https://github.com/simfeo/blender.git blender
 
-      - name: Inspect Android source and libraries
+      - name: Check build requirements
         run: |
           cd blender
 
           echo "=== Android build guide ==="
           if [ -f build_files/android/BUILDING.md ]; then
             echo "Build guide found"
+            sed -n '1,220p' build_files/android/BUILDING.md
           else
             echo "Build guide missing"
           fi
@@ -43,10 +44,10 @@ jobs:
             echo "Android library directory missing"
           fi
 
-          echo "=== Git submodule configuration ==="
+          echo "=== Submodule status ==="
           git submodule status || true
 
-          echo "=== Git LFS status ==="
-          git lfs ls-files | head -n 30 || true
+          echo "=== Disk space ==="
+          df -h
 
-          echo "=== Inspection finished ==="
+          echo "=== Check finished ==="
