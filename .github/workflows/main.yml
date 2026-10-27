@@ -1,17 +1,26 @@
 
-name: Check Blender Android Submodule
+name: Inspect Blender Android Libraries
 
 on:
   workflow_dispatch:
 
 jobs:
-  check:
+  inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Android library submodule
+      - name: Install Git LFS
         run: |
-          git ls-remote https://projects.blender.org/blender/blender.git HEAD
-          git ls-remote https://projects.blender.org/blender/blender.git refs/heads/main
-          git ls-remote https://projects.blender.org/blender/blender.git refs/heads/ios
-          echo "Checking Android port repository..."
-          git ls-remote https://github.com/Wanderson-Magalhaes/blender_for_android.git HEAD || true
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Inspect Android dependency repository
+        run: |
+          git clone --depth 1 --branch main https://projects.blender.org/blender/blender.git blender
+          cd blender
+          echo "=== Android submodule entry ==="
+          grep -n -A3 -B3 'lib/android_arm64' .gitmodules || true
+          echo "=== Android build instructions ==="
+          grep -n -i -E 'android_arm64|submodule|dependency' build_files/android/BUILDING.md | head -60
+          echo "=== Android library directory ==="
+          ls -la lib/android_arm64 2>&1 || true
