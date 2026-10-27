@@ -1,19 +1,30 @@
 
-name: Android Build Check
+name: Prepare Blender Android Lite
 
 on:
   workflow_dispatch:
 
 jobs:
-  check:
+  prepare:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check source files
+      - name: Install Git LFS
         run: |
-          echo "Checking repository files..."
-          ls -la
-          echo "Repository check completed."
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Clone Blender source
+        run: |
+          git clone --branch main https://projects.blender.org/blender/blender.git blender
+          cd blender
+          git lfs pull
+          git submodule update --init lib/linux_x64 lib/android_arm64
+
+      - name: Check Android dependencies
+        run: |
+          cd blender
+          echo "Checking Android libraries..."
+          ls -lah lib/android_arm64
+          echo "Checking host libraries..."
+          ls -lah lib/linux_x64
