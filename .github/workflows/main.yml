@@ -4,9 +4,15 @@ name: Inspect Blender Android Libraries
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   inspect:
     runs-on: ubuntu-latest
+    env:
+      GIT_LFS_SKIP_SMUDGE: "1"
+
     steps:
       - name: Install Git LFS
         run: |
@@ -14,20 +20,33 @@ jobs:
           sudo apt-get install -y git-lfs
           git lfs install
 
-      - name: Clone Android branch
+      - name: Clone Android source
         run: |
-          git clone --depth 1 --branch android https://github.com/simfeo/blender.git blender
-          cd blender
-          git lfs install
-          git -c lfs.fetchexclude="assets/brushes/essentials_brushes-curve_sculpt.blend" lfs pull || true
-          git submodule update --init --recursive
+          git clone --depth 1 --branch android \
+            https://github.com/simfeo/blender.git blender
 
-      - name: Check Android files
+      - name: Inspect Android source and libraries
         run: |
           cd blender
+
           echo "=== Android build guide ==="
-          ls -l build_files/android/BUILDING.md
-          echo "=== Android libraries ==="
-          ls -lah lib/android_arm64
-          echo "=== Git submodule status ==="
-          git submodule status
+          if [ -f build_files/android/BUILDING.md ]; then
+            echo "Build guide found"
+          else
+            echo "Build guide missing"
+          fi
+
+          echo "=== Android library directory ==="
+          if [ -d lib/android_arm64 ]; then
+            ls -lah lib/android_arm64
+          else
+            echo "Android library directory missing"
+          fi
+
+          echo "=== Git submodule configuration ==="
+          git submodule status || true
+
+          echo "=== Git LFS status ==="
+          git lfs ls-files | head -n 30 || true
+
+          echo "=== Inspection finished ==="
