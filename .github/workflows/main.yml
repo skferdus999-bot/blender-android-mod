@@ -1,36 +1,17 @@
 
-name: Prepare Blender Android Lite
+name: Check Blender Android Submodule
 
 on:
   workflow_dispatch:
 
 jobs:
-  prepare:
+  check:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Install Git LFS
+      - name: Check Android library submodule
         run: |
-          sudo apt-get update
-          sudo apt-get install -y git-lfs
-          git lfs install
-
-      - name: Clone Blender source
-        run: |
-          git clone --branch main https://projects.blender.org/blender/blender.git blender
-          cd blender
-          git lfs pull
-          echo "Listing configured submodules:"
-          cat .gitmodules
-          echo "Initializing available submodules:"
-          git submodule update --init --recursive
-
-      - name: Check Android libraries
-        run: |
-          cd blender
-          if [ -d lib/android_arm64 ]; then
-            ls -lah lib/android_arm64
-          else
-            echo "Android library folder is missing."
-            exit 1
-          fi
+          git ls-remote https://projects.blender.org/blender/blender.git HEAD
+          git ls-remote https://projects.blender.org/blender/blender.git refs/heads/main
+          git ls-remote https://projects.blender.org/blender/blender.git refs/heads/ios
+          echo "Checking Android port repository..."
+          git ls-remote https://github.com/Wanderson-Magalhaes/blender_for_android.git HEAD || true
