@@ -1,5 +1,5 @@
 
-name: Inspect Blender Android Libraries
+name: Inspect Blender iOS Branch
 
 on:
   workflow_dispatch:
@@ -14,13 +14,15 @@ jobs:
           sudo apt-get install -y git-lfs
           git lfs install
 
-      - name: Inspect Android dependency repository
+      - name: Inspect iOS branch
         run: |
-          git clone --depth 1 --branch main https://projects.blender.org/blender/blender.git blender
+          git clone --depth 1 --branch ios https://projects.blender.org/blender/blender.git blender
           cd blender
-          echo "=== Android submodule entry ==="
-          grep -n -A3 -B3 'lib/android_arm64' .gitmodules || true
-          echo "=== Android build instructions ==="
-          grep -n -i -E 'android_arm64|submodule|dependency' build_files/android/BUILDING.md | head -60
-          echo "=== Android library directory ==="
+          echo "=== Android port files ==="
+          find intern/ghost/intern -maxdepth 1 -type f \( -name '*Android*' -o -name '*android*' \) | head -60
+          echo "=== Android build directory ==="
+          ls -la build_files/android 2>&1 || true
+          echo "=== Android libraries ==="
           ls -la lib/android_arm64 2>&1 || true
+          echo "=== Git submodule configuration ==="
+          grep -n -A3 -B3 'lib/android_arm64' .gitmodules || true
